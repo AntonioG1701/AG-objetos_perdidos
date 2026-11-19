@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:objetos_perdidos/colores.dart';
+import 'package:objetos_perdidos/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,9 +25,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const Scaffold(
-        body: Center(child: Text('Objetos perdidos')),
-      ),
+      home: const HomePage(),
     );
   }
 }
