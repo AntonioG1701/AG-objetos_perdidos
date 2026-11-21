@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:objetos_perdidos/colores.dart';
+import 'package:objetos_perdidos/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,7 +13,22 @@ class _LoginPageState extends State<LoginPage> {
   bool cargando = false;
   String mensajeError = '';
 
-  Future<void> _iniciarSesion() async {}
+  Future<void> _iniciarSesion() async {
+    setState(() {
+      cargando = true;
+      mensajeError = '';
+    });
+    try {
+      await AuthService().iniciarSesionConGoogle();
+    } catch (e) {
+      debugPrint('Error de login: $e');
+      mensajeError = 'No se pudo iniciar sesión. Intenta de nuevo.';
+    }
+    if (!mounted) return;
+    setState(() {
+      cargando = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
