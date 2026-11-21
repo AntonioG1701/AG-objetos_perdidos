@@ -127,6 +127,9 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: gradientePrincipal),
+        ),
         title: const Text('Publicar objeto'),
       ),
       body: SingleChildScrollView(

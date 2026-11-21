@@ -59,6 +59,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: gradientePrincipal),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

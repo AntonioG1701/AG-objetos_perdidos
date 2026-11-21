@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:objetos_perdidos/colores.dart';
 import 'package:objetos_perdidos/pages/detalle_objeto_page.dart';
 import 'package:objetos_perdidos/services/auth_service.dart';
 import 'package:objetos_perdidos/services/objetos_service.dart';
@@ -31,7 +32,12 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis publicaciones')),
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: gradientePrincipal),
+        ),
+        title: const Text('Mis publicaciones'),
+      ),
       body: usuario == null
           ? const Center(child: CircularProgressIndicator())
           : StreamBuilder<QuerySnapshot>(
@@ -75,7 +81,6 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
     );
   }
 }
-
 
 
 

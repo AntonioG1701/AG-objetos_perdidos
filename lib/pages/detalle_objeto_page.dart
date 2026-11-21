@@ -150,7 +150,12 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
         final objeto = snapshot.data!;
         if (!objeto.exists) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Detalle del objeto')),
+            appBar: AppBar(
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(gradient: gradientePrincipal),
+              ),
+              title: const Text('Detalle del objeto'),
+            ),
             body: const Center(child: Text('Esta publicación ya no existe')),
           );
         }
@@ -161,7 +166,12 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
         final esAutor = usuario != null && usuario!.uid == objeto['autorUid'];
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Detalle del objeto')),
+          appBar: AppBar(
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(gradient: gradientePrincipal),
+            ),
+            title: const Text('Detalle del objeto'),
+          ),
           body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,5 +276,3 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
     );
   }
 }
-
-
