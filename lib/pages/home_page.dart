@@ -31,33 +31,34 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _cerrarSesion() async {
-    final confirmado = await showDialog<bool>(
+  void _cerrarSesion() {
+    showDialog(
+      barrierDismissible: false,
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Cerrar sesión'),
-          content: const Text('¿Quieres cerrar tu sesión?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Cerrar sesión'),
-            ),
-          ],
-        );
-      },
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Quieres cerrar tu sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await AuthService().cerrarSesion();
+            },
+            child: const Text('Cerrar sesión'),
+          ),
+        ],
+      ),
     );
-    if (confirmado != true) return;
-    await AuthService().cerrarSesion();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: colorFondo,
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: gradientePrincipal),
@@ -68,17 +69,13 @@ class _HomePageState extends State<HomePage> {
             const Text('Objetos Perdidos'),
             Text(
               usuario?.displayName ?? 'Cargando...',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.normal,
-              ),
+              style: const TextStyle(fontSize: 13),
             ),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.folder_shared),
-            tooltip: 'Mis publicaciones',
             onPressed: () {
               Navigator.push(
                 context,
@@ -90,7 +87,6 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesión',
             onPressed: _cerrarSesion,
           ),
         ],
@@ -114,7 +110,11 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               final objeto = objetos[index];
               return ObjetoCard(
-                objeto: objeto,
+                titulo: objeto['titulo'],
+                tipo: objeto['tipo'],
+                categoria: objeto['categoria'],
+                estado: objeto['estado'],
+                foto: (objeto['foto'] as Blob).bytes,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -138,7 +138,6 @@ class _HomePageState extends State<HomePage> {
         },
         backgroundColor: colorAcento,
         foregroundColor: Colors.white,
-        tooltip: 'Publicar objeto',
         child: const Icon(Icons.add),
       ),
     );

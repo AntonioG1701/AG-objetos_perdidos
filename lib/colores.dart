@@ -10,6 +10,6 @@ const colorFondo = Color(0xFFF5F5F5);
 
 const gradientePrincipal = LinearGradient(
   colors: [colorPrimario, colorSecundario],
-  begin: Alignment.centerLeft,
-  end: Alignment.centerRight,
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
 );

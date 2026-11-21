@@ -1,12 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:objetos_perdidos/colores.dart';
 
 class ObjetoCard extends StatelessWidget {
-  final QueryDocumentSnapshot objeto;
-  final VoidCallback onTap;
+  final String titulo;
+  final String tipo;
+  final String categoria;
+  final String estado;
+  final Uint8List foto;
+  final Function onTap;
 
-  const ObjetoCard({super.key, required this.objeto, required this.onTap});
+  const ObjetoCard({
+    super.key,
+    required this.titulo,
+    required this.tipo,
+    required this.categoria,
+    required this.estado,
+    required this.foto,
+    required this.onTap,
+  });
 
   Widget _etiqueta(String texto, Color color) {
     return Container(
@@ -28,88 +41,54 @@ class ObjetoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foto = (objeto['foto'] as Blob).bytes;
-    final devuelto = objeto['estado'] == 'Devuelto';
-    final esPerdido = objeto['tipo'] == 'Perdido';
+    final devuelto = estado == 'Devuelto';
+    final esPerdido = tipo == 'Perdido';
 
-    return Opacity(
-      opacity: devuelto ? 0.55 : 1,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.memory(
-                    foto,
-                    width: 84,
-                    height: 84,
-                    fit: BoxFit.cover,
-                    cacheWidth: 200,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        objeto['titulo'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          decoration:
-                              devuelto ? TextDecoration.lineThrough : null,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          _etiqueta(
-                            objeto['tipo'],
-                            esPerdido ? colorPerdido : colorEncontrado,
-                          ),
-                          const SizedBox(width: 6),
-                          _etiqueta(
-                            objeto['estado'],
-                            devuelto ? colorDevuelto : colorPrimario,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        objeto['categoria'],
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right),
-              ],
-            ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: devuelto ? Colors.grey.shade200 : Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        onTap: () => onTap(),
+        contentPadding: const EdgeInsets.all(10),
+        leading: Container(
+          width: 72,
+          height: 72,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+          child: Image.memory(foto, fit: BoxFit.cover),
+        ),
+        title: Text(
+          titulo,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: devuelto ? Colors.grey.shade600 : Colors.black,
           ),
         ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                _etiqueta(tipo, esPerdido ? colorPerdido : colorEncontrado),
+                const SizedBox(width: 6),
+                _etiqueta(estado, devuelto ? colorDevuelto : colorPrimario),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              categoria,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+            ),
+          ],
+        ),
+        trailing: const Icon(Icons.chevron_right),
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-

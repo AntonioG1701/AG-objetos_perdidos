@@ -52,6 +52,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
   }
 
   Future<void> _elegirFoto(ImageSource origen) async {
+    if (guardando) return;
     try {
       final archivo = await ImagePicker().pickImage(
         source: origen,
@@ -73,7 +74,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
         errorFoto = '';
       });
     } catch (e) {
-      debugPrint('Error al elegir foto: $e');
+      print('Error al elegir foto: $e');
       if (!mounted) return;
       setState(() {
         errorFoto = 'No se pudo cargar la foto';
@@ -106,7 +107,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
         usuario!.displayName ?? usuario!.email ?? 'Usuario',
       );
     } catch (e) {
-      debugPrint('Error al publicar: $e');
+      print('Error al publicar: $e');
       if (!mounted) return;
       setState(() {
         guardando = false;
@@ -126,6 +127,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: colorFondo,
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: gradientePrincipal),
@@ -141,10 +143,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
             children: [
               DropdownButtonFormField<String>(
                 initialValue: tipoSeleccionado,
-                decoration: const InputDecoration(
-                  labelText: 'Tipo',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Tipo'),
                 items: tipos
                     .map((tipo) => DropdownMenuItem(
                           value: tipo,
@@ -163,15 +162,12 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
                 stream: categoriasStream,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const LinearProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   }
                   final categorias = snapshot.data!.docs;
                   return DropdownButtonFormField<String>(
                     initialValue: categoriaSeleccionada,
-                    decoration: const InputDecoration(
-                      labelText: 'Categoría',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Categoría'),
                     items: categorias
                         .map((doc) => DropdownMenuItem(
                               value: doc['nombre'] as String,
@@ -193,18 +189,15 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
                 decoration: const InputDecoration(
                   labelText: 'Título',
                   hintText: 'Ej: Audífonos Bluetooth negros',
-                  border: OutlineInputBorder(),
                 ),
                 validator: validarTitulo,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: descripcionController,
-                maxLines: 4,
                 decoration: const InputDecoration(
                   labelText: 'Descripción',
                   hintText: 'Color, marca, detalles que ayuden a reconocerlo',
-                  border: OutlineInputBorder(),
                 ),
                 validator: validarDescripcion,
               ),
@@ -214,7 +207,6 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
                 decoration: const InputDecoration(
                   labelText: 'Lugar del campus',
                   hintText: 'Ej: Laboratorio U100',
-                  border: OutlineInputBorder(),
                 ),
                 validator: validarLugar,
               ),
@@ -225,23 +217,23 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border.all(color: Colors.black26),
+                  border: Border.all(color: Colors.grey.shade400),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: fotoBytes == null
-                    ? const Center(
+                    ? Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.photo_camera,
                               size: 48,
-                              color: Colors.black38,
+                              color: Colors.grey.shade500,
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
                               'Aún no hay foto',
-                              style: TextStyle(color: Colors.black54),
+                              style: TextStyle(color: Colors.grey.shade700),
                             ),
                           ],
                         ),
@@ -252,44 +244,62 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: guardando
-                          ? null
-                          : () => _elegirFoto(ImageSource.camera),
-                      icon: const Icon(Icons.photo_camera),
-                      label: const Text('Cámara'),
+                    child: ElevatedButton(
+                      onPressed: () => _elegirFoto(ImageSource.camera),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorSecundario,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.photo_camera),
+                          SizedBox(width: 8),
+                          Text('Cámara'),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: guardando
-                          ? null
-                          : () => _elegirFoto(ImageSource.gallery),
-                      icon: const Icon(Icons.photo_library),
-                      label: const Text('Galería'),
+                    child: ElevatedButton(
+                      onPressed: () => _elegirFoto(ImageSource.gallery),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorSecundario,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.photo_library),
+                          SizedBox(width: 8),
+                          Text('Galería'),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-              if (errorFoto.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  errorFoto,
-                  style: const TextStyle(color: colorPerdido, fontSize: 13),
-                ),
-              ],
+              errorFoto.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        errorFoto,
+                        style: const TextStyle(color: colorPerdido, fontSize: 13),
+                      ),
+                    )
+                  : const SizedBox(),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'La fecha y la hora se registran automáticamente al publicar.',
-                style: TextStyle(fontSize: 13, color: Colors.black54),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
               ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: guardando ? null : _publicar,
+                  onPressed: _publicar,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorAcento,
                     foregroundColor: Colors.white,
@@ -298,10 +308,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
                       ? const SizedBox(
                           height: 22,
                           width: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                          child: CircularProgressIndicator(color: Colors.white),
                         )
                       : const Text('Publicar'),
                 ),

@@ -40,7 +40,7 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
     try {
       await ObjetosService().marcarDevuelto(widget.objetoId);
     } catch (e) {
-      debugPrint('Error al marcar devuelto: $e');
+      print('Error al marcar devuelto: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No se pudo marcar como devuelto')),
@@ -53,44 +53,61 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
     });
   }
 
-  Future<void> _borrar() async {
-    final confirmado = await showDialog<bool>(
+  void _borrar() {
+    showDialog(
+      barrierDismissible: false,
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Borrar publicación'),
-          content: const Text(
-            '¿Seguro que quieres borrar esta publicación? '
-            'Esta acción no se puede deshacer.',
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Borrar publicación'),
+        content: const Text(
+          '¿Seguro que quieres borrar esta publicación? '
+          'Esta acción no se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancelar'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              style: FilledButton.styleFrom(backgroundColor: colorPerdido),
-              child: const Text('Borrar'),
-            ),
-          ],
-        );
-      },
-    );
-    if (confirmado != true) return;
+          FilledButton(
+            onPressed: () async {
+              if (guardando) return;
+              guardando = true;
 
-    try {
-      await ObjetosService().borrarObjeto(widget.objetoId);
-    } catch (e) {
-      debugPrint('Error al borrar: $e');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo borrar la publicación')),
-      );
-      return;
-    }
-    if (!mounted) return;
-    Navigator.pop(context);
+              try {
+                final messenger = ScaffoldMessenger.of(context);
+
+                await ObjetosService().borrarObjeto(widget.objetoId);
+
+                if (!mounted || !dialogContext.mounted) {
+                  return;
+                }
+
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Publicación borrada')),
+                );
+
+                Navigator.pop(dialogContext);
+                Navigator.pop(context);
+              } catch (e) {
+                print('Error al borrar: $e');
+                if (!mounted || !dialogContext.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('No se pudo borrar la publicación'),
+                  ),
+                );
+              } finally {
+                guardando = false;
+              }
+            },
+            style: FilledButton.styleFrom(backgroundColor: colorPerdido),
+            child: const Text('Borrar'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _etiqueta(String texto, Color color) {
@@ -111,31 +128,6 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
     );
   }
 
-  Widget _fila(IconData icono, String titulo, String valor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icono, size: 20, color: colorPrimario),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
-                ),
-                Text(valor, style: const TextStyle(fontSize: 16)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -150,6 +142,7 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
         final objeto = snapshot.data!;
         if (!objeto.exists) {
           return Scaffold(
+            backgroundColor: colorFondo,
             appBar: AppBar(
               flexibleSpace: Container(
                 decoration: const BoxDecoration(gradient: gradientePrincipal),
@@ -166,6 +159,7 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
         final esAutor = usuario != null && usuario!.uid == objeto['autorUid'];
 
         return Scaffold(
+          backgroundColor: colorFondo,
           appBar: AppBar(
             flexibleSpace: Container(
               decoration: const BoxDecoration(gradient: gradientePrincipal),
@@ -209,25 +203,97 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
                           color: colorPrimario,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      _fila(Icons.category, 'Categoría', objeto['categoria']),
-                      _fila(Icons.place, 'Lugar', objeto['lugar']),
-                      _fila(
-                        Icons.event,
-                        'Fecha y hora',
-                        formatearFecha(objeto['fecha']),
+                      const SizedBox(height: 8),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(
+                          Icons.category,
+                          color: colorPrimario,
+                        ),
+                        title: Text(
+                          'Categoría',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          objeto['categoria'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
-                      _fila(
-                        Icons.person,
-                        'Publicado por',
-                        objeto['autorNombre'],
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(
+                          Icons.place,
+                          color: colorPrimario,
+                        ),
+                        title: Text(
+                          'Lugar',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          objeto['lugar'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(
+                          Icons.event,
+                          color: colorPrimario,
+                        ),
+                        title: Text(
+                          'Fecha y hora',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          formatearFecha(objeto['fecha']),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(
+                          Icons.person,
+                          color: colorPrimario,
+                        ),
+                        title: Text(
+                          'Publicado por',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          objeto['autorNombre'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                       const Divider(height: 28),
-                      const Text(
+                      Text(
                         'Descripción',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.black54,
+                          color: Colors.grey.shade600,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -235,36 +301,56 @@ class _DetalleObjetoPageState extends State<DetalleObjetoPage> {
                         objeto['descripcion'],
                         style: const TextStyle(fontSize: 16),
                       ),
-                      if (esAutor) ...[
-                        const SizedBox(height: 28),
-                        if (!devuelto)
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton.icon(
-                              onPressed: guardando ? null : _marcarDevuelto,
-                              icon: const Icon(Icons.check_circle),
-                              label: const Text('Marcar como devuelto'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorEncontrado,
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: OutlinedButton.icon(
-                            onPressed: _borrar,
-                            icon: const Icon(Icons.delete),
-                            label: const Text('Borrar publicación'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: colorPerdido,
-                            ),
-                          ),
-                        ),
-                      ],
+                      esAutor
+                          ? Column(
+                              children: [
+                                const SizedBox(height: 28),
+                                devuelto
+                                    ? const SizedBox()
+                                    : SizedBox(
+                                        width: double.infinity,
+                                        height: 48,
+                                        child: ElevatedButton(
+                                          onPressed: _marcarDevuelto,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: colorEncontrado,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.check_circle),
+                                              SizedBox(width: 8),
+                                              Text('Marcar como devuelto'),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    onPressed: _borrar,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: colorPerdido,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.delete),
+                                        SizedBox(width: 8),
+                                        Text('Borrar publicación'),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const SizedBox(),
                     ],
                   ),
                 ),

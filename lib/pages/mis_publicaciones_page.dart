@@ -32,6 +32,7 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: colorFondo,
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: gradientePrincipal),
@@ -63,7 +64,11 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
                   itemBuilder: (context, index) {
                     final objeto = misObjetos[index];
                     return ObjetoCard(
-                      objeto: objeto,
+                      titulo: objeto['titulo'],
+                      tipo: objeto['tipo'],
+                      categoria: objeto['categoria'],
+                      estado: objeto['estado'],
+                      foto: (objeto['foto'] as Blob).bytes,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -81,7 +86,6 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
     );
   }
 }
-
 
 
 
