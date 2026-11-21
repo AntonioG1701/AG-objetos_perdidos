@@ -31,6 +31,30 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _cerrarSesion() async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Cerrar sesión'),
+          content: const Text('¿Quieres cerrar tu sesión?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Cerrar sesión'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmado != true) return;
+    await AuthService().cerrarSesion();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,9 +88,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () {
-              AuthService().cerrarSesion();
-            },
+            onPressed: _cerrarSesion,
           ),
         ],
       ),
