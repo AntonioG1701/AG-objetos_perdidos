@@ -301,7 +301,7 @@ class _PublicarObjetoPageState extends State<PublicarObjetoPage> {
                 child: ElevatedButton(
                   onPressed: _publicar,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colorAcento,
+                    backgroundColor: colorAgregar,
                     foregroundColor: Colors.white,
                   ),
                   child: guardando

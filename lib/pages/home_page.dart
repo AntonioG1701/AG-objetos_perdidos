@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(builder: (context) => const PublicarObjetoPage()),
           );
         },
-        backgroundColor: colorAcento,
+        backgroundColor: colorAgregar,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
       ),

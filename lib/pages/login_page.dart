@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 112,
               height: 112,
               decoration: const BoxDecoration(
-                color: colorAcento,
+                color: colorAgregar,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.search, size: 64, color: Colors.white),
