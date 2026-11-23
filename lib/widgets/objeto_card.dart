@@ -39,56 +39,90 @@ class ObjetoCard extends StatelessWidget {
     );
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final devuelto = estado == 'Devuelto';
     final esPerdido = tipo == 'Perdido';
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: devuelto ? Colors.grey.shade200 : Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        onTap: () => onTap(),
-        contentPadding: const EdgeInsets.all(10),
-        leading: Container(
-          width: 72,
-          height: 72,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-          child: Image.memory(foto, fit: BoxFit.cover),
+    return GestureDetector(
+      onTap: () => onTap(),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
         ),
-        title: Text(
-          titulo,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: devuelto ? Colors.grey.shade600 : Colors.black,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                _etiqueta(tipo, esPerdido ? colorPerdido : colorEncontrado),
-                const SizedBox(width: 6),
-                _etiqueta(estado, devuelto ? colorDevuelto : colorPrimario),
-              ],
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Image.memory(foto, fit: BoxFit.cover),
             ),
-            const SizedBox(height: 6),
-            Text(
-              categoria,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+            devuelto
+                ? Positioned(
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(color: Colors.white54),
+                  )
+                : const SizedBox(),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.transparent, Colors.black87],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      titulo,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      categoria,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _etiqueta(tipo, esPerdido ? colorPerdido : colorEncontrado),
+                  const SizedBox(height: 4),
+                  _etiqueta(estado, devuelto ? colorDevuelto : colorPrimario),
+                ],
+              ),
             ),
           ],
         ),
-        trailing: const Icon(Icons.chevron_right),
       ),
     );
   }
 }
+

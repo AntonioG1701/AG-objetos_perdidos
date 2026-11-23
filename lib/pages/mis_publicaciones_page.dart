@@ -58,11 +58,13 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.only(top: 6, bottom: 20),
-                  itemCount: misObjetos.length,
-                  itemBuilder: (context, index) {
-                    final objeto = misObjetos[index];
+                return GridView.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.8,
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+                  children: misObjetos.map((objeto) {
                     return ObjetoCard(
                       titulo: objeto['titulo'],
                       tipo: objeto['tipo'],
@@ -79,7 +81,7 @@ class _MisPublicacionesPageState extends State<MisPublicacionesPage> {
                         );
                       },
                     );
-                  },
+                  }).toList(),
                 );
               },
             ),

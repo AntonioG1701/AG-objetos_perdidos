@@ -104,11 +104,13 @@ class _HomePageState extends State<HomePage> {
             return const Center(child: Text('Aún no hay publicaciones'));
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.only(top: 6, bottom: 90),
-            itemCount: objetos.length,
-            itemBuilder: (context, index) {
-              final objeto = objetos[index];
+          return GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.8,
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
+            children: objetos.map((objeto) {
               return ObjetoCard(
                 titulo: objeto['titulo'],
                 tipo: objeto['tipo'],
@@ -125,10 +127,11 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               );
-            },
+            }).toList(),
           );
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

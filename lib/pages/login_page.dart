@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Objetos Perdidos',
+              'Objetos Perdidos USM',
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
